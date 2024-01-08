@@ -1,0 +1,37 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import { IMGS_PERPAGE } from "../constants";
+import Pagination from "../components/Pagination.astro";
+
+
+const currentPage: number | null = +Astro.url.searchParams.get('page')! || 1;
+
+const allImages: CollectionEntry<'images'>[] = await getCollection('images');
+
+const totalPages: number = Math.ceil(allImages.length / IMGS_PERPAGE);
+
+const imagesForPage: CollectionEntry<'images'>[] = allImages.slice((currentPage - 1) * IMGS_PERPAGE, currentPage * IMGS_PERPAGE);
+---
+
+<MainLayout>
+    <div class="container mx-auto">
+    <div class="columns-1 gap-5 gap-y-5 p-5 sm:columns-2 md:p-10 lg:columns-3 lg:gap-8 xl:columns-4 mt-5 [&>img:not(:first-child)]:mt-5 lg:[&>img:not(:first-child)]:mt-8">
+        <div class="grid gap-4">
+            {imagesForPage.map(imgs => (
+            <a href={imgs.data.dwnurl} target="_blank">
+                <img class="h-auto max-w" src={imgs.data.imageurl}>
+                </a>
+            
+        ))}
+        </div>
+    </div>
+    </div>
+    <Pagination 
+  currentPage={currentPage} 
+  totalPages={totalPages} 
+  disablePrevious={currentPage === 1} 
+  disableNext={currentPage === totalPages} 
+/>
+</MainLayout>
